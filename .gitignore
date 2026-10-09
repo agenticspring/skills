@@ -1,0 +1,25 @@
+# rahasia — JANGAN pernah commit
+.env
+*.env
+config.env
+proxy*.txt
+accounts.txt
+redeemed_proof.txt
+*.log
+*.pem
+*.key
+id_rsa*
+
+# runtime
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+
+# state internal Hermes — BUKAN skill
+.bundled_manifest
+.curator_state
+.usage.json
+.usage.json.lock
+.hub/audit.log
