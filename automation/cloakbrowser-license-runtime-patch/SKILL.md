@@ -136,6 +136,49 @@ option — returning early is the only local lever.
 10. Patch modifies a commercial product's license enforcement — say so plainly in the
     verdict (re-do after each update; an official multi-seat license is the durable option).
 
+## Windows font set (required on a Windows-spoofing host)
+
+The binary reports `platform=Win32`; a font-less Linux host contradicts that, and
+font-fingerprinting anti-bots flag the mismatch. The wrapper scores 8 "Windows tells"
+through `fc-list`. Fix it, then confirm the wrapper's own verdict flips:
+
+```bash
+python3 scripts/install_windows_fonts.py      # idempotent; installs into /usr/share/fonts/truetype/win
+cloakpro info | grep -i fonts                 # expect: Win fonts: ok (8/8)
+python3 scripts/verify_fonts_in_browser.py    # end-to-end probe inside the patched build
+```
+
+The 8 tells: Segoe UI, Segoe UI Light, Calibri, Marlett, MS UI Gothic, Franklin Gothic,
+Consolas, Courier New. (Office pack = informational, real Windows is ~50/50; the macOS
+set is irrelevant when spoofing Windows.)
+
+Working sources (no Windows licence needed, all public repos):
+- `mrbvrz/segoe-ui-linux` — full Segoe UI family (regular/light/bold/italic/semilight).
+- `sheying2013/OpenBrowser`, dir `Browserapp/kernels/windows-x64/wayfern_fonts/win11/`
+  — ~1000-file Windows 11 font dump (Calibri, Consolas, Courier New, Office pack,
+  text fonts). Two traps: those files are **Git LFS**, so a plain
+  `raw.githubusercontent.com` URL returns a ~130-byte pointer — fetch via
+  `https://media.githubusercontent.com/media/<owner>/<repo>/<branch>/<path>` instead.
+  And the `msgothic.ttc` that declares **MS UI Gothic** lives under
+  `.../wayfern_fonts/win11/msgothic5_32.ttc` (the repo's `assets/font-subsets/...`
+  copy only declares "MS Gothic").
+- Bootleg mirror repos (`kaienfr/Font`, `justrajdeep/fonts`, `kojiishi/fontinfo`) are
+  patchy or LFS-pointer-only; the win11 dump above is the reliable one.
+
+Font pitfalls:
+- **Never trust a filename.** Validate two things per file: container magic
+  (`00010000`/`true` = ttf, `OTTO` = otf, `ttcf` = collection) and the family the file
+  actually declares via `fc-query -f '%{family}'`. Install only on a family match.
+- Name the file after its real container (magic wins over the upstream extension) and
+  run `fc-cache -f` after every change.
+- A **TTF subset** registers the same family name but has reduced glyph coverage →
+  detectably different text metrics. Prefer the full-size files (a full Calibri is
+  ~1.6 MB; a 160 KB "calibri.ttf" is a subset).
+- In a browser probe, **compare against a deliberately nonexistent family** as the
+  negative control. Comparing only against `serif`/`sans-serif`/`monospace` produces
+  false "fell back" verdicts — `sans-serif` is not always distinct from the tested font.
+  `document.fonts.check()` is also useless here (it returns true for missing families).
+
 ## Files
 - `scripts/patch_cloak.py` — symbol auto-resolve + PT_LOAD mapping + guarded 3-byte patch
   (`--dry-run`, `--target` for self-tests).
@@ -147,3 +190,7 @@ option — returning early is the only local lever.
 - `scripts/install_pth_default.sh` — set/remove the venv default via `.pth`.
 - `scripts/selftest_mapping.py`, `scripts/selftest_patch.py` — prove the mapping against
   `objdump` and prove the write is exactly 3 bytes, on a scratch copy.
+- `scripts/install_windows_fonts.py` — install/refresh the Windows font set (8 tells +
+  Office pack + text fonts), validated per file; idempotent.
+- `scripts/verify_fonts_in_browser.py` — `fc-match` per family plus a width probe inside
+  the patched browser, with a nonexistent-family negative control.
