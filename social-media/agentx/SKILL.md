@@ -175,10 +175,22 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
 - **x.com answers HTTP 200 for REJECTED operations.** The failure signal is *inside* the
   body (`errors[]`, or an operation-specific `message`/empty result), so a write can
   "succeed" while doing nothing. Fixed in `DezXBT/AgentX` commit `2319e40`
-  (2026-10-10), which now checks: `PinTweet` (`pin_tweet.message`,
-  `added_tweet_to_highlights`), `UnpinTweet` (`unpin_tweet.message`), `TopicFollow`/
-  `TopicUnfollow` (empty `topic_id`/`name` ⇒ `not_found`), `CommunityByRestId`/
-  `CommunityTweetsTimeline` (`{"__typename":"CommunityUnavailable"}` ⇒ `not_found`).
+  (2026-10-10), which now checks: `TopicFollow`/`TopicUnfollow` (empty `topic_id`/`name` ⇒
+  `not_found`), `CommunityByRestId`/`CommunityTweetsTimeline`
+  (`{"__typename":"CommunityUnavailable"}` ⇒ `not_found`).
+  ⚠️ **That commit's `pin`/`unpin` check was WRONG and was corrected in `c15c545`** — do not
+  reinstate it. Treating any non-empty `pin_tweet.message` as a failure breaks real pins, because
+  x.com uses the `message` field for BOTH outcomes and exposes no usable boolean
+  (`added_tweet_to_highlights` is `false` in the success body too):
+  | op | outcome | body |
+  |---|---|---|
+  | pin | ok | `{"pin_tweet":{"added_tweet_to_highlights":false,"message":"post pinned successfully"}}` |
+  | pin | fail | `{"pin_tweet":{"added_tweet_to_highlights":false,"message":"post is not valid for pinning"}}` |
+  | unpin | ok | `{"unpin_tweet":{"message":"post unpinned successfully"}}` |
+  | unpin | fail | `{"unpin_tweet":{"message":"no pinned post changes required"}}` |
+  So: match the success text exactly and fail closed on anything else. Verify a pin out of band via
+  the profile's `pinned_tweet_ids_str` (use `AGENTX_DUMP_RAW`), never from `ok:true` alone.
+
   **`delete <tweet>` cannot be verified client-side**: x.com returns the identical
   `{"delete_tweet":{"tweet_results":{}}}` for a successful delete and for one it ignores
   (confirmed against a real delete). Do not "fix" that with a non-empty-result check — it
@@ -210,6 +222,35 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
 - **`-a <unknown>` now returns `account_error`** (commit `84599fe`), not `api_error` — it used to
   silently fall back to the zero-auth FxTwitter backend. Test the FxTwitter path on purpose with
   `AGENTX_HOME=/tmp/empty agentx tweet <id>` (no accounts ⇒ `source: "fxtwitter"`).
+- **A poll is readable back** (added 2026-10-10, commit `dd3a558`). `Tweet.Poll` carries
+  `choices[{label,count}]`, `endsAt`, `durationMinutes`, `final`, `selected`. x.com ships a poll as
+  a **card**, not a typed object, so the parser reads `card.legacy.binding_values`
+  (`name` starts with `poll`) and decodes `choice<N>_label`, `choice<N>_count`,
+  `end_datetime_utc`, `duration_minutes`, `counts_are_final`, `selected_choice`. `selected` is the
+  only proof your own `vote` registered — X keeps `choice<N>_count` at 0 and
+  `counts_are_final=false` until it publishes the tally, so a 0/0 count does **not** mean the vote
+  failed. Non-poll tweets and non-poll cards carry no `poll` field.
+- **Coverage notes from the full sweep (2026-10-10).**
+  - `watch <mode> --once` **emits the current matches and exits** — it does *not* seed silently (only
+    the non-`--once` loop does). Empty output therefore means "no matches", not a broken stream.
+    Burner with 0 followers has no mentions; prove the path with
+    `agentx watch search "<query>" --once` (emits NDJSON).
+  - `likers <id>` is **author-only** → empty for someone else's tweet. To verify your own like, read
+    `likes <your-handle>`.
+  - `bookmarks folder create` / `bookmark --folder` are **Premium-gated**: the failure is
+    `api_error: Authorization: User … not authorized to use bookmark collections`. Correct, not a bug.
+  - `article <id>` needs a **real X Article id** — a bogus numeric id fails with
+    `api_error: strconv.ParseInt … value out of range` (the id is simply not a tweet id).
+  - `post --thread` auto-splits >280 chars into a real thread (returns the id list); `post --media f
+    --alt t` uploads media (the returned text gains a `t.co` link); `grok image` works and writes a
+    JPEG (free tier ~100/day); `grok <prompt>` answers with live web search.
+  - `block`/`unblock` and `follow`/`unfollow` report `done:true`; verify **follow** via
+    `following <handle>`, but there is **no blocked-list command**, so a block can only be confirmed
+    by the response.
+  - Genuinely not exercisable on a non-Premium burner: `edit`, long-form `post` (>280), bookmark
+    folders, `community create` (permanent), `avatar`/`banner`/`profile`/`settings` writes (mutate the
+    profile), `account login` (X blocks datacenter IPs), and `topic follow`/`community join` (need a
+    real topic/community id).
 - **Never probe a PUBLIC write against a real target.** A "bad id" is not safe for
   `reply`/`quote` — tweet id `1` exists, so `quote 1 "x"` really posts. Verify public writes
   by posting to your own account and deleting it, or use an id that cannot exist
