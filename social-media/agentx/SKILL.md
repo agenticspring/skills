@@ -202,8 +202,10 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
   | `reply <id> "…"` | `tweet <new_id>` → `inReplyToId == <id>`; `thread <id>` lists it. **Replies to others do NOT appear in `posts <handle>`** (profile timeline excludes replies) — that absence is correct, not a bug |
   | `retweet <id>` | `retweeters <id>` contains your handle; a new `RT @…` entry appears in `posts <handle>` |
   | `bookmark <id>` | `bookmarks -n 40` contains the id |
-  | `like <id>` | `analytics <id>` / `likers <id>` (author-only) |
-  Cleanup after a test: `delete <post_id>`, `delete <reply_id>`, `unretweet <id>`, `unbookmark <id>`.
+  | `like <id>` | **`likes <ownhandle>`** contains the id (this is the reliable one). `likers <id>` is author-only, so it is **empty for someone else's post** — useless as a read-back |
+  | `bookmark <id>` | `bookmarks -n 40` contains the id |
+  | cleanup (`delete`/`unretweet`/`unbookmark`/`unlike`) | `tweet <id>` → `not_found`; `retweeters <id>` no longer lists you; `bookmarks` / `likes <handle>` no longer contain it; `me` → `tweetsCount` back to its original value (exercised end-to-end 2026-10-10: 6 → 9 after post+reply+RT, back to 6 after cleanup) |
+  Cleanup after a test: `delete <post_id>`, `delete <reply_id>`, `unretweet <id>`, `unbookmark <id>`, `unlike <id>`.
   **There is no way to delete a DM** — a test `dm send` to yourself is permanent.
 - **`-a <unknown>` now returns `account_error`** (commit `84599fe`), not `api_error` — it used to
   silently fall back to the zero-auth FxTwitter backend. Test the FxTwitter path on purpose with
