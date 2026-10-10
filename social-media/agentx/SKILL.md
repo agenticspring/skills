@@ -172,7 +172,26 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
 - Download tweet media: `agentx download <tweet_id> --out /path/to/file.mp4`
 ## Pitfalls & Learnings
 
-- **`x-client-transaction-id` needs an AUTHENTICATED home-page fetch** (fixed 2026-10-10, upstream `DezXBT/AgentX` commit `6fb20da`; binary rebuilt + installed here). The generator derives its keys from the `,<idx>:"ondemand.s"` chunk map, which x.com **only serves to a session with cookies** — the logged-out page (41 KB shell) has no such entry, so generation fails and, because `setHeaders` only aborts writes, the symptom is: *every* write (`post`, `reply`, `like`, `bookmark`, `draft`, `dm send`, `grok`) fails with `api_error: generate x-client-transaction-id`, while reads look fine because they go out **unsigned**. Do not misread the follow-on 404s on `SearchTimeline`/`Followers` as stale query ids — they are the missing header (both old and new ids work once signed). Diagnose with: `strings /usr/local/bin/agentx | grep -i transaction` (the Go binary is **not stripped**), or clone the public source. Rebuild + install:
+- **x.com answers HTTP 200 for REJECTED operations.** The failure signal is *inside* the
+  body (`errors[]`, or an operation-specific `message`/empty result), so a write can
+  "succeed" while doing nothing. Fixed in `DezXBT/AgentX` commit `2319e40`
+  (2026-10-10), which now checks: `PinTweet` (`pin_tweet.message`,
+  `added_tweet_to_highlights`), `UnpinTweet` (`unpin_tweet.message`), `TopicFollow`/
+  `TopicUnfollow` (empty `topic_id`/`name` ⇒ `not_found`), `CommunityByRestId`/
+  `CommunityTweetsTimeline` (`{"__typename":"CommunityUnavailable"}` ⇒ `not_found`).
+  **`delete <tweet>` cannot be verified client-side**: x.com returns the identical
+  `{"delete_tweet":{"tweet_results":{}}}` for a successful delete and for one it ignores
+  (confirmed against a real delete). Do not "fix" that with a non-empty-result check — it
+  would break real deletes.
+- **Debug raw traffic with `AGENTX_DUMP_RAW=<file>`** (added in `2319e40`): appends each raw
+  x.com response body. It is the only way to see whether a 200 actually did anything.
+  Confirm cleanups by re-reading state (timeline/search), not by trusting `ok:true`.
+- **Never probe a PUBLIC write against a real target.** A "bad id" is not safe for
+  `reply`/`quote` — tweet id `1` exists, so `quote 1 "x"` really posts. Verify public writes
+  by posting to your own account and deleting it, or use an id that cannot exist
+  (`999999999999999999999`); scheduled tweets *do* fire, so `unschedule` everything you
+  created.
+- **`x-client-transaction-id` needs an AUTHENTICATED home-page fetch** (fixed 2026-10-10, upstream `DezXBT/AgentX` commits `19b7825` + `2319e40`; binary rebuilt + installed here). The generator derives its keys from the `,<idx>:"ondemand.s"` chunk map, which x.com **only serves to a session with cookies** — the logged-out page (41 KB shell) has no such entry, so generation fails and, because `setHeaders` only aborts writes, the symptom is: *every* write (`post`, `reply`, `like`, `bookmark`, `draft`, `dm send`, `grok`) fails with `api_error: generate x-client-transaction-id`, while reads look fine because they go out **unsigned**. Do not misread the follow-on 404s on `SearchTimeline`/`Followers` as stale query ids — they are the missing header (both old and new ids work once signed). Diagnose with: `strings /usr/local/bin/agentx | grep -i transaction` (the Go binary is **not stripped**), or clone the public source. Rebuild + install:
   ```bash
   git clone https://github.com/DezXBT/AgentX.git && cd AgentX   # dezxbt/agentx redirects here
   go build -o agentx ./cmd/agentx                              # go >= 1.22
