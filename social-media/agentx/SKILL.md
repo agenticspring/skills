@@ -247,10 +247,42 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
   - `block`/`unblock` and `follow`/`unfollow` report `done:true`; verify **follow** via
     `following <handle>`, but there is **no blocked-list command**, so a block can only be confirmed
     by the response.
-  - Genuinely not exercisable on a non-Premium burner: `edit`, long-form `post` (>280), bookmark
-    folders, `community create` (permanent), `avatar`/`banner`/`profile`/`settings` writes (mutate the
-    profile), `account login` (X blocks datacenter IPs), and `topic follow`/`community join` (need a
-    real topic/community id).
+  - Not exercisable on a non-Premium burner: `edit`, long-form `post` (>280) and bookmark folders
+    (Premium-gated), `community create` (permanent), `account login` (X blocks datacenter IPs),
+    `account add`/`remove` (needs a second account), `dm download` (a test `dm send` can never be
+    deleted), `article` (needs the *tweet* id of an article post — see below), and
+    `topic follow`/`unfollow` (no topic id is discoverable from any command surface — `topic_id`
+    appears in no response body).
+- **Profile-mutating writes ARE testable non-destructively** (done 2026-10-10): capture the current
+  state, write, verify by re-reading, restore, re-verify.
+  - `profile --name/--bio/--location/--url`: **empty values are ignored** (`profile --location ""` ⇒
+    `invalid_input` usage), so only mutate fields that already hold a value, or you cannot restore
+    them.
+  - `settings [--protected b] [--dms-from all|following] [--discoverable-email b] [--geo b]`: read
+    current values with a plain `agentx settings`, flip, then flip back.
+  - `avatar <img>` / `banner <img>`: back up the originals first — `profile_image_url_https` with the
+    `_normal` suffix stripped, and `profile_banner_url` **+ `/1500x500`** (without the suffix you get a
+    600×200 thumbnail). The CDN URL changes on re-upload (new media id / timestamp) but the image is
+    byte-identical: compare pixels (`PIL.ImageChops.difference`), not URLs.
+- **Community join/leave semantics** (bodies captured 2026-10-10). `community info <id>` reports
+  `joinPolicy`, `isMember`, `role` — use it to pick an **open** community (`joinPolicy: "Open"`) when
+  testing `join`; a restricted one fails with a GraphQL `DependencyError: Dependency: Unspecified`
+  (agentx reports it correctly, `ok:false`). The `community_join`/`community_leave` responses carry an
+  `actions` object describing the state **after** the call, so a successful leave reads
+  `leave_action_result: CommunityLeaveActionUnavailable / "Not a member."` and the body is
+  **byte-identical whether you were a member or not** — `done:true` is correct in both cases and
+  need not be distinguished.
+- **`list subscribe` is idempotent**: subscribing twice returns the *same* body (`list_subscribe_v3`
+  with the list metadata and `"following":true`). There is no command that lists your
+  subscriptions, so that body flag is the only read-back.
+- **`article <id|url>` wants the TWEET id of a post that carries an article** (looked up via
+  `TweetResultByRestId`). An `x.com/i/article/<id>` id is **not** a tweet id and returns `not_found`
+  with body `{"data":{"tweetResult":{}}}`.
+- **`download --all --out DIR` used to ignore DIR** (fixed `b3301c9`) and dumped every file into the
+  cwd. `--out` now means a *file* only when exactly one file is written to it and the path is not a
+  directory; otherwise it is a destination directory, created if missing. Verify downloads by listing
+  the target directory — the `saved:` field echoed a bare name when the bug was live, which is easy to
+  misread as success.
 - **Never probe a PUBLIC write against a real target.** A "bad id" is not safe for
   `reply`/`quote` — tweet id `1` exists, so `quote 1 "x"` really posts. Verify public writes
   by posting to your own account and deleting it, or use an id that cannot exist
