@@ -275,9 +275,18 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
 - **`list subscribe` is idempotent**: subscribing twice returns the *same* body (`list_subscribe_v3`
   with the list metadata and `"following":true`). There is no command that lists your
   subscriptions, so that body flag is the only read-back.
-- **`article <id|url>` wants the TWEET id of a post that carries an article** (looked up via
-  `TweetResultByRestId`). An `x.com/i/article/<id>` id is **not** a tweet id and returns `not_found`
-  with body `{"data":{"tweetResult":{}}}`.
+- **`article <id|url>` is about a tweet's ARTICLE, and it works** (verified 2026-10-10 on
+  `thedankoe/status/2010751592346030461` → `articleTitle` "How to fix your entire life in 1 day",
+  `articleText` 30,904 chars; `--markdown` → 31,575 chars with 7 `##` headings and lists). Two traps:
+  - The id must be the **tweet id of the article post** (lookup is `TweetResultByRestId`). An
+    `x.com/i/article/<id>` id is **not** a tweet id → `not_found` with body
+    `{"data":{"tweetResult":{}}}`. Find one by asking Grok for a `x.com/<user>/status/<id>` URL of an
+    article post.
+  - A **non-article tweet returns `ok:true`** with `articleTitle`/`articleText` absent — that is the
+    documented behaviour ("Non-article tweets are returned with empty article fields"), so a client
+    must check the article fields, **not** `.ok`, to know it got an article.
+  `tweet <id>` on an article post carries the same `articleTitle`/`articleText`, so it can be read
+  without the `article` command.
 - **`download --all --out DIR` used to ignore DIR** (fixed `b3301c9`) and dumped every file into the
   cwd. `--out` now means a *file* only when exactly one file is written to it and the path is not a
   directory; otherwise it is a destination directory, created if missing. Verify downloads by listing
