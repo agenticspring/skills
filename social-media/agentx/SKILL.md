@@ -2,7 +2,7 @@
 name: agentx
 description: Drive X/Twitter from the CLI (read, post, DM, lists, communities, Grok, scheduling, analytics). Use when an agent needs to read or act on X/Twitter. Every command prints one JSON envelope.
 version: 1.0.0
-author: <HANDLE_REDACTED>
+author: DezXBT
 license: Private
 platforms: [linux, macos, windows]
 metadata:
@@ -172,6 +172,13 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
 - Download tweet media: `agentx download <tweet_id> --out /path/to/file.mp4`
 ## Pitfalls & Learnings
 
+- **`x-client-transaction-id` needs an AUTHENTICATED home-page fetch** (fixed 2026-10-10, upstream `DezXBT/AgentX` commit `6fb20da`; binary rebuilt + installed here). The generator derives its keys from the `,<idx>:"ondemand.s"` chunk map, which x.com **only serves to a session with cookies** — the logged-out page (41 KB shell) has no such entry, so generation fails and, because `setHeaders` only aborts writes, the symptom is: *every* write (`post`, `reply`, `like`, `bookmark`, `draft`, `dm send`, `grok`) fails with `api_error: generate x-client-transaction-id`, while reads look fine because they go out **unsigned**. Do not misread the follow-on 404s on `SearchTimeline`/`Followers` as stale query ids — they are the missing header (both old and new ids work once signed). Diagnose with: `strings /usr/local/bin/agentx | grep -i transaction` (the Go binary is **not stripped**), or clone the public source. Rebuild + install:
+  ```bash
+  git clone https://github.com/DezXBT/AgentX.git && cd AgentX   # dezxbt/agentx redirects here
+  go build -o agentx ./cmd/agentx                              # go >= 1.22
+  cp -a /usr/local/bin/agentx /usr/local/bin/agentx.bak-$(date +%F) && install -m755 agentx /usr/local/bin/agentx
+  ```
+  Backup binary from the fix: `/usr/local/bin/agentx.bak-2026-10-10`. Source clone: `/root/agentx-src`.
 - **`gh` CLI required at startup** — binary checks `exec.LookPath("gh")` and exits with `ERROR: gh CLI not found.` if missing. Install: `apt install gh` or `curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg`. `gh auth login` is NOT required — tokens from `data/tokens.txt` are used directly for GitHub API calls; `gh` is only a fallback when no tokens file exists.
 - **Grok images: NEVER call vision_analyze** — The vision model often returns 402 (insufficient balance). When user asks to generate images with Grok, generate and send directly via `MEDIA:`. Do NOT try to analyze/inspect the generated image first. User explicitly prefers this workflow.
 - **External CDN links expire** — Links like `cdn.mp4ko.de`, `dood.stream`, `aceiymg.com`, `vdko.de` are external hosting, NOT Twitter CDN. They expire, get geo-blocked, or return tiny error pages. Use `agentx download <id>` for Twitter-hosted media (pbs.twimg.com, video.twimg.com) which handles auth properly.
