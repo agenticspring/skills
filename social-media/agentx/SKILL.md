@@ -272,6 +272,20 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
   `leave_action_result: CommunityLeaveActionUnavailable / "Not a member."` and the body is
   **byte-identical whether you were a member or not** — `done:true` is correct in both cases and
   need not be distinguished.
+- **Posting INTO a Community is NOT supported — and it is not a one-flag fix** (investigated
+  2026-10-10). There is no `community post` command, and adding `community_id` to the `CreateTweet`
+  variables is **silently ignored** by x.com: the call returns `ok:true` and creates an ordinary
+  timeline tweet. Evidence: re-reading the created tweet shows **no `community_results`**, and it
+  never appears in `community posts --latest`. Do **not** re-add such a flag without proof — a
+  silently-ignored write is exactly the false-success class this section warns about. A real
+  community tweet carries `community_results.result.id_str` (plus `viewer_relationship`) at the top
+  level of the tweet object, which is the field to assert against if you ever test a new approach.
+  What *does* work in the community lifecycle: `community info`, `community posts`, `join`, `leave`,
+  and `delete` on a community tweet (it is an ordinary tweet id — verified by deleting posts created
+  in the community).
+- **`community posts` defaults to RELEVANCE order.** A brand-new post with no engagement will not
+  appear in the default view — pass `--latest` when checking whether a post landed in a community,
+  or you will wrongly conclude the write failed.
 - **`list subscribe` is idempotent**: subscribing twice returns the *same* body (`list_subscribe_v3`
   with the list metadata and `"following":true`). There is no command that lists your
   subscriptions, so that body flag is the only read-back.
