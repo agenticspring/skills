@@ -178,7 +178,7 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
   go build -o agentx ./cmd/agentx                              # go >= 1.22
   cp -a /usr/local/bin/agentx /usr/local/bin/agentx.bak-$(date +%F) && install -m755 agentx /usr/local/bin/agentx
   ```
-  Backup binary from the fix: `/usr/local/bin/agentx.bak-2026-10-10`. Source clone: `/root/agentx-src`.
+  Backup binary from the fix: `/usr/local/bin/agentx.bak-2026-10-10`. Source clone: `/root/projects/agentx`.
 - **`gh` CLI required at startup** — binary checks `exec.LookPath("gh")` and exits with `ERROR: gh CLI not found.` if missing. Install: `apt install gh` or `curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg`. `gh auth login` is NOT required — tokens from `data/tokens.txt` are used directly for GitHub API calls; `gh` is only a fallback when no tokens file exists.
 - **Grok images: NEVER call vision_analyze** — The vision model often returns 402 (insufficient balance). When user asks to generate images with Grok, generate and send directly via `MEDIA:`. Do NOT try to analyze/inspect the generated image first. User explicitly prefers this workflow.
 - **External CDN links expire** — Links like `cdn.mp4ko.de`, `dood.stream`, `aceiymg.com`, `vdko.de` are external hosting, NOT Twitter CDN. They expire, get geo-blocked, or return tiny error pages. Use `agentx download <id>` for Twitter-hosted media (pbs.twimg.com, video.twimg.com) which handles auth properly.
