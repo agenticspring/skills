@@ -186,6 +186,28 @@ Send with `MEDIA:/root/media/photos/photo.jpg` in response.
 - **Debug raw traffic with `AGENTX_DUMP_RAW=<file>`** (added in `2319e40`): appends each raw
   x.com response body. It is the only way to see whether a 200 actually did anything.
   Confirm cleanups by re-reading state (timeline/search), not by trusting `ok:true`.
+- **A tweet now reports its reply linkage** (added 2026-10-10, commit `2ced4e7`): `isReply`,
+  `inReplyToId`, `inReplyToUser`, `conversationId` — filled from graphql
+  (`legacy.in_reply_to_status_id_str` / `in_reply_to_screen_name` / `conversation_id_str`), REST v1.1
+  (same names) and FxTwitter (`replying_to_status` / `replying_to`). Before this the only hint that a
+  post was a reply was the `@handle` text prefix. Semantics: `conversationId` is the **root** tweet of
+  the thread, so it equals the tweet's own `id` for a thread starter. Verify a reply landed with
+  `agentx tweet <reply_id>` → `inReplyToId` must equal the parent id; `agentx thread <parent_id>`
+  must list the reply.
+- **Verifying each public write (recipe, exercised live 2026-10-10 on the burner `kawinvrai`).**
+  Every write needs a **read-back** check; `ok:true` alone proves nothing:
+  | Write | Read-back that actually proves it |
+  |---|---|
+  | `post "…"` | `tweet <new_id>` returns text+author; `me` → `tweetsCount` +1 |
+  | `reply <id> "…"` | `tweet <new_id>` → `inReplyToId == <id>`; `thread <id>` lists it. **Replies to others do NOT appear in `posts <handle>`** (profile timeline excludes replies) — that absence is correct, not a bug |
+  | `retweet <id>` | `retweeters <id>` contains your handle; a new `RT @…` entry appears in `posts <handle>` |
+  | `bookmark <id>` | `bookmarks -n 40` contains the id |
+  | `like <id>` | `analytics <id>` / `likers <id>` (author-only) |
+  Cleanup after a test: `delete <post_id>`, `delete <reply_id>`, `unretweet <id>`, `unbookmark <id>`.
+  **There is no way to delete a DM** — a test `dm send` to yourself is permanent.
+- **`-a <unknown>` now returns `account_error`** (commit `84599fe`), not `api_error` — it used to
+  silently fall back to the zero-auth FxTwitter backend. Test the FxTwitter path on purpose with
+  `AGENTX_HOME=/tmp/empty agentx tweet <id>` (no accounts ⇒ `source: "fxtwitter"`).
 - **Never probe a PUBLIC write against a real target.** A "bad id" is not safe for
   `reply`/`quote` — tweet id `1` exists, so `quote 1 "x"` really posts. Verify public writes
   by posting to your own account and deleting it, or use an id that cannot exist
