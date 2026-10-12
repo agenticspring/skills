@@ -12,7 +12,7 @@ Telegram bot that wraps a Python script, with:
 
 ### Auth Check
 ```python
-AUTHORIZED_USER_ID = <TELEGRAM_ALLOWED_USERS_REDACTED>
+AUTHORIZED_USER_ID = 6832598147
 
 def is_authorized(update: Update) -> bool:
     return update.effective_user.id == AUTHORIZED_USER_ID

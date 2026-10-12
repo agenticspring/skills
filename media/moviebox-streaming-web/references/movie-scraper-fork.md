@@ -48,7 +48,7 @@ When Dez says "buatin UI kayak moviebox" for this repo, the pattern is one
   for TV, `poster_path` from `https://image.tmdb.org/t/p/w500`; clicking a movie
   goes `?id=<tmdb>`, a TV show goes `?id=<tmdb>&s=1&e=1`.
 - **TMDB key**: upstream hardcodes someone else's key in index.html — always
-  replace with Dez's key (`56ebc0698d0662c798faf8dc529305ab`) before pushing to
+  replace with Dez's key (`56ebc0698d…05ab`) before pushing to
   a repo Dez owns. Key is client-side-safe, repo is private.
 - Player: upstream `play()` only used hls.js for EVERYTHING; for `.mp4` URLs set
   `video.src` directly (or hls.js will fail on non-m3u8). Use `Hls.isSupported()

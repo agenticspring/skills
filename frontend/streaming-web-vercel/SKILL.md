@@ -435,7 +435,7 @@ etc.) to Vercel, check whether TMDB key is already hardcoded with fallback:
 
 ```javascript
 // GOOD - works without env vars
-const TMDB_API_KEY = process.env.TMDB_API_KEY || '56ebc0698d0662c798faf8dc529305ab';
+const TMDB_API_KEY = process.env.TMDB_API_KEY || '56ebc0698d…05ab';
 
 // BAD - requires env var, fails on Vercel without it
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
@@ -443,7 +443,7 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY;
 
 **Fix pattern for projects without fallback:**
 1. Find all TMDB_API_KEY usages in server.js
-2. Add fallback key: `process.env.TMDB_API_KEY || '56ebc0698d0662c798faf8dc529305ab'`
+2. Add fallback key: `process.env.TMDB_API_KEY || '56ebc0698d…05ab'`
 3. Test locally FIRST (`node server.js`, verify startup log shows "✓ Configured")
 4. Push and redeploy
 
@@ -490,7 +490,7 @@ the fallback before checking.
 **CRITICAL**: User provided HAR file proving Nonthon uses TMDB for metadata, NOT self-hosted. The previous analysis was WRONG.
 
 Nonthon.vercel.app actually uses:
-- **TMDB API**: api.themoviedb.org/3/* with key `8265bd1679663a7ea12ac168da84d2e8`
+- **TMDB API**: api.themoviedb.org/3/* with key `8265bd1679…d2e8`
 - **Language**: id-ID (Indonesian)
 - **Endpoints**: /3/trending/all/week, /3/movie/popular, /3/tv/popular
 

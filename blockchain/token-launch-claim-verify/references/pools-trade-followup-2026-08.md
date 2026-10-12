@@ -38,7 +38,7 @@ Signals, in order of weight:
 2. **Backend under org domain**: root JS bundle leaks `VITE_ENTRY_GATEWAY_URL: https://entry-gateway.backend-prod.api.uniswap.org`, `VITE_WEBSOCKET_URL: wss://entry-gateway.backend-prod.api.uniswap.org/ws`. Gateway `/health` returns `ok` (200); `/ws` returns 401 (auth-gated).
 3. **CSP connect-src enumerates chains**: `https://rpc.mainnet.chain.robinhood.com`, `https://eth.drpc.org`, `https://eth-mainnet.public.blastapi.io`, `https://mainnet.unichain.org`, `https://mainnet.base.org` → Robinhood + Ethereum + Unichain + Base.
 4. **Dev/staging infra exists**: `dev.pools.trade` and `staging.pools.trade` resolve to separate ELBs (`rh-cca-lb-*us-east-2.elb.amazonaws.com`) but time out on HTTP — restricted. Their existence confirms real engineering infra.
-5. **Production config**: Datadog RUM enabled (env `prod`, app `d9fb6f67-612a-44ea-80f9-df6a4ab10b06`, client token `pub2a38...`), WalletConnect project id `9b352e684c8ca55a65c568acb6dac860`, `VITE_TEASER_MODE: true`, `VITE_APP_VERSION: 4cc33d5`.
+5. **Production config**: Datadog RUM enabled (env `prod`, app `d9fb6f67-612a-44ea-80f9-df6a4ab10b06`, client token `pub2a38...`), WalletConnect project id `9b352e684c…c860`, `VITE_TEASER_MODE: true`, `VITE_APP_VERSION: 4cc33d5`.
 6. **Registrar (mild flag, NOT decisive)**: GoDaddy + Domains By Proxy privacy, created 2026-07-17. Uniswap main domain uses Cloudflare registrar — the GoDaddy stealth registration is consistent with a pre-launch teaser domain, and signals 1-3 outweigh it.
 7. **Hosting**: AWS ELB us-east-2 (Columbus) → S3 + CloudFront (`d29c45bs0h4ffe.cloudfront.net`), Amazon RSA cert, `rh-cca-*` ELB naming (Robin Hood Chain CCA = Continuous Clearing Auction).
 

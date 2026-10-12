@@ -4,7 +4,7 @@ Analyzed 2026-08-01 when Dez asked "website ini dapat darimana source nya" for
 `https://www.loklok.fun/` and `https://www.loklok.tv/`. These are NOT the same
 app and NOT a new source class — both frontends sit on the **NetPop / RR.TV**
 backend family, which is the SAME backend family as the RR domains Dez already
-uses for webnovel (<DOMAIN_REDACTED>.cyou / <REDACTED> / <REDACTED> — see memory).
+uses for webnovel (orangkaya.cyou / anakbaik.cyou / ejhitam.my.id — see memory).
 So before treating any LokLok-like site as a fresh provider, check for the
 NetPop/RR.TV fingerprints below.
 

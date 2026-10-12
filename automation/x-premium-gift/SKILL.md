@@ -85,7 +85,7 @@ As of 2026-07-07, 2Captcha returns **ERROR_CAPTCHA_UNSOLVABLE** for Stripe's hCa
 
 ### Anti-Captcha: Solves BUT Token Injection Fails
 
-Anti-Captcha (`api.anti-captcha.com`) **successfully solves** the hCaptcha Enterprise token. Key: `<ANTICAPTCHA_API_KEY_REDACTED>` (balance $25+).
+Anti-Captcha (`api.anti-captcha.com`) **successfully solves** the hCaptcha Enterprise token. Key: `03ea83a89c…0f29` (balance $25+).
 
 ```python
 # Submit hCaptcha Enterprise task
@@ -167,7 +167,7 @@ For **creating** X accounts (CLI, onboarding, Arkose, skip-phone), use **`x-acco
 
 ## GitHub Repo
 
-- **Repo**: https://github.com/<HANDLE_REDACTED>/x-gift-bot
+- **Repo**: https://github.com/DezXBT/x-gift-bot
 - **Visibility**: Private
 - **Files**: x_gift.py, x_gift_bot.py, donor.txt, README.md
 
@@ -180,7 +180,7 @@ playwright install chromium
 
 # Clone repo
 source ~/.hermes/.env
-git clone https://<HANDLE_REDACTED>:$GITHUB_TOKEN@github.com/<HANDLE_REDACTED>/x-gift-bot.git
+git clone https://DezXBT:$GITHUB_TOKEN@github.com/DezXBT/x-gift-bot.git
 cd x-gift-bot
 ```
 
@@ -207,8 +207,8 @@ screen -S tgbot -X quit
 screen -dmS tgbot bash -c 'cd /root/media && python3 x_gift_bot.py'
 ```
 
-**Bot Token**: `8903149257:AAHYqVoRRoceClWKt4wvHTDRcLVehwe4fPk`
-**Auth ID**: `<TELEGRAM_ALLOWED_USERS_REDACTED>` (only this user can access)
+**Bot Token**: `8903149257:AA…4fPk`
+**Auth ID**: `6832598147` (only this user can access)
 
 **Bot Commands:**
 
@@ -382,7 +382,7 @@ To update donors:
 16. **@springhermes can be donor** — After receiving Premium via gift, the account can be used as donor (cookies work). But account must be >1 day old.
 17. **Stripe checkout form** — Email input has no `name` attribute. Find by placeholder or position (first input). Billing fields only appear after selecting Bank Transfer.
 18. **Stealth Playwright removes Bank Transfer** — Using stealth mode removes captcha but also removes Bank Transfer payment option. Only Card/Crypto/iDEAL available. May need EU proxy to restore.
-19. **Anti-Captcha key** — `<ANTICAPTCHA_API_KEY_REDACTED>` (balance ~$25). Can solve Stripe hCaptcha Enterprise but token injection fails.
+19. **Anti-Captcha key** — `03ea83a89c…0f29` (balance ~$25). Can solve Stripe hCaptcha Enterprise but token injection fails.
 20. **2Captcha keys** — Primary `82d7c3c7...` ($47.87), Secondary `54081d9b...` ($6.75) — both cannot solve Stripe hCaptcha Enterprise.
 
 ## Troubleshooting

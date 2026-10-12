@@ -15,13 +15,13 @@ Full streaming web app (Node.js + Express + Vue 3), NOT just an API. More featur
 ## Deployment to Vercel
 1. Import repo in Vercel
 2. Add env vars:
-   - `TMDB_API_KEY` = 56ebc0698d0662c798faf8dc529305ab (bundled)
+   - `TMDB_API_KEY` = 56ebc0698d…05ab (bundled)
    - `CACHE_TYPE` = memory (for serverless)
 3. Deploy - MacCMS sources already included (56 stations)
 
 ## This Session's Work (2026-08-04)
 - **Created repo**: https://github.com/agenticspring/dongguaTV (PRIVATE)
-- **Added TMDB key**: 56ebc0698d0662c798faf8dc529305ab (same as MovieBox)
+- **Added TMDB key**: 56ebc0698d…05ab (same as MovieBox)
 - **Added 56 MacCMS sources**: db.json with stations from MovieBox's resource.js
 - **Config**: CACHE_TYPE=memory for Vercel deployment
 

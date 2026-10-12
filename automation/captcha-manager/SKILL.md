@@ -75,7 +75,7 @@ curl -s "https://rucaptcha.com/res.php?key=YOUR_KEY&action=reportbad&id=1"
 
 ## Workflow: Test a New Key from Harvester
 
-Canonical path: **`/root/api-key-leak`** (repo `<HANDLE_REDACTED>/api-key-leak`). Not `/root/api-key-harvester`.
+Canonical path: **`/root/api-key-leak`** (repo `DezXBT/api-key-leak`). Not `/root/api-key-harvester`.
 Writes to `found/<provider>.txt` (`| balance | key | source |`). Daily workflow:
 1. Captcha-focused providers when farming Webnovel CF budget: `2captcha,capsolver,capmonster,anti-captcha,rucaptcha,...`
 2. `cat found/2captcha.txt found/rucaptcha.txt found/capmonster.txt found/anti-captcha.txt found/capsolver.txt`

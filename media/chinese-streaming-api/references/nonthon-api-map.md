@@ -21,7 +21,7 @@ Subsequent calls require this cookie. Rate-limited on failures.
 
 ## TMDB (western content — direct browser fetch)
 
-Key exposed in client JS: `8265bd1679663a7ea12ac168da84d2e8`
+Key exposed in client JS: `8265bd1679…d2e8`
 
 ```
 GET https://api.themoviedb.org/3/trending/all/week?api_key=...&language=id-ID&page=1

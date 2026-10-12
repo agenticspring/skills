@@ -7,10 +7,10 @@ Default email layer uses a temp-mail API (mail_api + jwt). Replace with catch-al
 ```json
 {
   "mail_mode": "gmail_imap",
-  "gmail_user": "<REDACTED>",
+  "gmail_user": "mywinterhermes@gmail.com",
   "gmail_app_password": "xxxx xxxx xxxx xxxx",
   "imap_host": "imap.gmail.com",
-  "mail_domains": ["<REDACTED>"],
+  "mail_domains": ["dezxbt.bond"],
   "headless": false,
   "delay_between_accounts": 60,
   "email_verify_timeout": 180,

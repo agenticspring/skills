@@ -688,8 +688,8 @@ Dez asked where the source comes from for `loklok.fun` (Nuxt official) and
 `loklok.tv` (Vue2 + dutun.cc "Ironman" template clone). Both frontends are
 cosmetic; the real backend is **NetPop = RR.TV** (`web-api.netpop.app`,
 `alpha-web-api.rr.tv`, `img.netpop.app`) — the SAME backend family as the RR
-domains Dez already uses for webnovel (<DOMAIN_REDACTED>.cyou / <REDACTED> /
-<REDACTED>), though that's accounts, not video streams. API requires
+domains Dez already uses for webnovel (orangkaya.cyou / anakbaik.cyou /
+ejhitam.my.id), though that's accounts, not video streams. API requires
 `currentTime` + `sign` + `aesKey` headers (sign = MD5(base64url(AES_encrypt(
 ts+json, uuid))), aesKey = Turing `Clouse(uuid)`), so curl probes get 403
 ("timestamp empty" → "aesKey empty"). Key endpoint for video source:

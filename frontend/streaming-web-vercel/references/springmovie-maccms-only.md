@@ -66,4 +66,4 @@ For a general “Film” row, aggregate concrete film categories such as action/
 - `/api/search?q=<known Chinese title>` returns MacCMS items with `src` and `vodId`.
 - Browser home cards and hero play links point to `/dracin/...`, not `/watch/...` or TMDB detail routes.
 - One sample `/api/dracin?action=detail` and `action=episode` resolves a playable HLS/mp4 URL and proxied stream URL.
-- Before pushing to Vercel-linked `agenticspring/springmovie`, ensure both commit author and committer are `agenticspring <307995144+agenticspring@users.noreply.github.com>`; Vercel may reject commits authored by <HANDLE_REDACTED> for this project.
+- Before pushing to Vercel-linked `agenticspring/springmovie`, ensure both commit author and committer are `agenticspring <307995144+agenticspring@users.noreply.github.com>`; Vercel may reject commits authored by DezXBT for this project.

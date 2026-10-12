@@ -16,7 +16,7 @@ User wants to mass-create Cloudflare accounts (free Workers AI tier: 10K neurons
 - `main.py` orchestrator: signup → email verify → token create → validate → save `results.json` → optional `--export-txt` (9Router-friendly format).
 - `src/signup_flow.py` — nodriver signup + Turnstile via `page.verify_cf()`.
 - `src/turnstile_bypass.py` — wraps `page.verify_cf()` (the ONLY reliable July-2026 method; no opencv/xdotool).
-- `src/token_creator.py` — `POST /api/v4/user/tokens` (Workers AI read group `a92d2450e05d4e7bb7d0a64968f83d11` + write `bacc64e0f6c34fc0883a1223f938a104`) with UI fallback.
+- `src/token_creator.py` — `POST /api/v4/user/tokens` (Workers AI read group `a92d2450e0…3d11` + write `bacc64e0f6…a104`) with UI fallback.
 - `src/email_generator.py` + `email_verifier.py` — temp-mail API (REPLACE for custom domain).
 
 ## Pre-reqs on this VPS (empero / 82.39.206.183)
@@ -28,7 +28,7 @@ User wants to mass-create Cloudflare accounts (free Workers AI tier: 10K neurons
 
 ## Adapting repo to custom domain + Gmail IMAP (replace temp-mail)
 See `references/repo-adaptation.md` for full code. Summary:
-1. `config.json`: add `mail_mode:"gmail_imap"`, `gmail_user`, `gmail_app_password`, `imap_host`, `mail_domains:["<REDACTED>"]`.
+1. `config.json`: add `mail_mode:"gmail_imap"`, `gmail_user`, `gmail_app_password`, `imap_host`, `mail_domains:["dezxbt.bond"]`.
 2. Add `src/gmail_imap.py` (IMAP SSL fetch filtered by `To:` header).
 3. Add `src/email_verifier_gmail.py` (reuses `extract_verification_link` from `email_verifier.py`, polls Gmail).
 4. Patch `main.py`: branch on `mail_mode`; for `gmail_imap` skip `EmailGenerator`, build deterministic `email = f"{username}@{domain}"`, call `verify_cloudflare_email_gmail(...)`.
