@@ -15,7 +15,7 @@ TWOCAPTCHA_API_KEY, TWOCAPTCHA_API_KEY_2.._6
 TWOCAPTCHA_KEY_1..TWOCAPTCHA_KEY_14
 ```
 
-`TWOCAPTCHA_KEY_4` and `TWOCAPTCHA_API_KEY_2` both held `<TWOCAPTCHA_API_KEY_2_REDACTED>`.
+`TWOCAPTCHA_KEY_4` and `TWOCAPTCHA_API_KEY_2` both held `54081d9b55…dfc6`.
 Dedupe by key string; counting 27 env vars instead of 26 distinct keys overstates the total.
 
 ## Raw provider responses (verbatim)

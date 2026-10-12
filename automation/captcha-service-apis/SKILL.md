@@ -263,12 +263,12 @@ then one line with the deduped total and any duplicate-key note:
 ```
 # api_key | balance | provider   (live 2026-09-30 07:00:16 UTC)
 
-<TWOCAPTCHA_KEY_5_REDACTED> | $4.97841  | 2captcha
-<ANTICAPTCHA_API_KEY_REDACTED> | $98.25803 | anti-captcha
-<CAPSOLVER_API_KEY_3_REDACTED> | $8.231 | capsolver
+db753f23fc…85da | $4.97841  | 2captcha
+03ea83a89c…0f29 | $98.25803 | anti-captcha
+CAP-742B0FD8…6BBF | $8.231 | capsolver
 
 # habis / kosong
-<TWOCAPTCHA_API_KEY_REDACTED> | $-0.00126 | 2captcha
+82d7c3c7df…b807 | $-0.00126 | 2captcha
 ```
 
 Re-runnable: `scripts/captcha_balance_report.sh` (prints exactly that shape from `~/.hermes/.env`).
